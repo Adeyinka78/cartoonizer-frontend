@@ -2,6 +2,14 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+
+  console.log("VITE_API_BASE_URL:", API_BASE_URL);
+  console.log(
+    "VITE_STRIPE_PUBLISHABLE_KEY:",
+    import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
+  );
+
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -10,12 +18,22 @@ function App() {
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
+    if (!file) return;
+
     setImage(file);
 
     const reader = new FileReader();
     reader.onloadend = () => setPreview(reader.result);
     reader.readAsDataURL(file);
   };
+
+  const toBase64 = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
 
   const sendToServer = async () => {
     if (credits <= 0) {
@@ -29,36 +47,35 @@ function App() {
     }
 
     setLoading(true);
+    setResult(null);
 
-    const base64 = await toBase64(image);
+    try {
+      const base64 = await toBase64(image);
 
-    fetch("https://cartoonizer-backend-production-4203.up.railway.app/cartoonize", {
+      const res = await fetch(`${API_BASE_URL}/cartoonize`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          imageData: base64.replace(/^data:image\/\w+;base64,/, ""),
+          style: "anime",
+        }),
+      });
 
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        imageData: base64.replace(/^data:image\/\w+;base64,/, ""),
-        style: "anime",
-      }),
-    });
+      const data = await res.json();
+      setLoading(false);
 
-    const data = await res.json();
-    setLoading(false);
-
-    if (data.success) {
-      setResult(data.url);
-      setCredits((c) => c - 1);
-    } else {
-      alert("Error: " + data.error);
+      if (data.success) {
+        setResult(data.url);
+        setCredits((c) => c - 1);
+      } else {
+        alert("Error: " + data.error);
+      }
+    } catch (err) {
+      console.error(err);
+      setLoading(false);
+      alert("Server error. Check console logs.");
     }
   };
-
-  const toBase64 = (file) =>
-    new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
-    });
 
   return (
     <div className="container">
@@ -69,7 +86,6 @@ function App() {
         💳 Credits remaining: <strong>{credits}</strong>
       </p>
 
-      {/* BUY CREDITS BUTTON */}
       <a
         href="https://buy.stripe.com/14A6oH1BVbih3Jy40F4wM00?"
         target="_blank"
@@ -90,7 +106,7 @@ function App() {
       </a>
 
       <div className="upload-box">
-        <input type="file" onChange={handleImageUpload} />
+        <input type="file" accept="image/*" onChange={handleImageUpload} />
       </div>
 
       {preview && (
@@ -108,7 +124,7 @@ function App() {
         <div className="preview-box">
           <h3>🖼️ Cartoonized Result</h3>
           <img src={result} alt="result" className="image" />
-          <a className="download" href={result} target="_blank">
+          <a className="download" href={result} target="_blank" rel="noreferrer">
             ⬇ Download Image
           </a>
         </div>
