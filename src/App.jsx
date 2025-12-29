@@ -2,17 +2,13 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
-  console.log("VITE_API_BASE_URL:", import.meta.env.VITE_API_BASE_URL);
-  console.log(
-    "VITE_STRIPE_PUBLISHABLE_KEY:",
-    import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
-  );
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState(null);
-  const [credits, setCredits] = useState(1); // 1 free credit
+  const [credits, setCredits] = useState(1);
 
   const handleImageUpload = (e) => {
     const file = e.target.files[0];
@@ -49,29 +45,28 @@ function App() {
     try {
       const base64 = await toBase64(image);
 
-      const res = await fetch(
-        `${import.meta.env.VITE_API_BASE_URL}/cartoonize`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            imageData: base64.replace(/^data:image\/\w+;base64,/, ""),
-            style: "anime",
-          }),
-        }
-      );
+      const response = await fetch(`${API_BASE_URL}/cartoonize`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          imageData: base64.replace(/^data:image\/\w+;base64,/, ""),
+          style: "anime",
+        }),
+      });
 
-      const data = await res.json();
+      const data = await response.json();
 
-      if (!res.ok) {
-        throw new Error(data.error || "Cartoonization failed");
+      if (!response.ok || !data.success) {
+        throw new Error(data.error || "Failed to process image");
       }
 
       setResult(data.url);
       setCredits((c) => c - 1);
-    } catch (error) {
-      console.error("Cartoonize error:", error);
-      alert("Something went wrong. Please try again.");
+    } catch (err) {
+      console.error("Cartoonize error:", err);
+      alert("Failed to process image. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -86,7 +81,7 @@ function App() {
         💳 Credits remaining: <strong>{credits}</strong>
       </p>
 
-      {/* BUY CREDITS */}
+      {/* STRIPE BUY BUTTON */}
       <a
         href="https://buy.stripe.com/14A6oH1BVbih3Jy40F4wM00"
         target="_blank"
