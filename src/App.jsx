@@ -51,7 +51,7 @@ function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          imageData: base64.replace(/^data:image\/\w+;base64,/, ""),
+          imageData: base64,   // <-- FULL BASE64 STRING (FIXED)
           style: "anime",
         }),
       });
@@ -81,7 +81,6 @@ function App() {
         💳 Credits remaining: <strong>{credits}</strong>
       </p>
 
-      {/* STRIPE BUY BUTTON */}
       <a
         href="https://buy.stripe.com/14A6oH1BVbih3Jy40F4wM00"
         target="_blank"
