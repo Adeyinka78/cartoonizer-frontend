@@ -2,9 +2,7 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
-
-  console.log("VITE_API_BASE_URL:", API_BASE_URL);
+  console.log("VITE_API_BASE_URL:", import.meta.env.VITE_API_BASE_URL);
   console.log(
     "VITE_STRIPE_PUBLISHABLE_KEY:",
     import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY
@@ -47,33 +45,35 @@ function App() {
     }
 
     setLoading(true);
-    setResult(null);
 
     try {
       const base64 = await toBase64(image);
 
-      const res = await fetch(`${API_BASE_URL}/cartoonize`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          imageData: base64.replace(/^data:image\/\w+;base64,/, ""),
-          style: "anime",
-        }),
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_API_BASE_URL}/cartoonize`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            imageData: base64.replace(/^data:image\/\w+;base64,/, ""),
+            style: "anime",
+          }),
+        }
+      );
 
       const data = await res.json();
-      setLoading(false);
 
-      if (data.success) {
-        setResult(data.url);
-        setCredits((c) => c - 1);
-      } else {
-        alert("Error: " + data.error);
+      if (!res.ok) {
+        throw new Error(data.error || "Cartoonization failed");
       }
-    } catch (err) {
-      console.error(err);
+
+      setResult(data.url);
+      setCredits((c) => c - 1);
+    } catch (error) {
+      console.error("Cartoonize error:", error);
+      alert("Something went wrong. Please try again.");
+    } finally {
       setLoading(false);
-      alert("Server error. Check console logs.");
     }
   };
 
@@ -86,21 +86,12 @@ function App() {
         💳 Credits remaining: <strong>{credits}</strong>
       </p>
 
+      {/* BUY CREDITS */}
       <a
-        href="https://buy.stripe.com/14A6oH1BVbih3Jy40F4wM00?"
+        href="https://buy.stripe.com/14A6oH1BVbih3Jy40F4wM00"
         target="_blank"
         rel="noopener noreferrer"
-        style={{
-          display: "inline-block",
-          padding: "12px 24px",
-          backgroundColor: "#6772e5",
-          color: "white",
-          borderRadius: "6px",
-          textDecoration: "none",
-          fontWeight: "bold",
-          fontSize: "16px",
-          margin: "12px 0",
-        }}
+        className="buy-btn"
       >
         Buy Cartoon Credits
       </a>
@@ -124,7 +115,12 @@ function App() {
         <div className="preview-box">
           <h3>🖼️ Cartoonized Result</h3>
           <img src={result} alt="result" className="image" />
-          <a className="download" href={result} target="_blank" rel="noreferrer">
+          <a
+            className="download"
+            href={result}
+            target="_blank"
+            rel="noopener noreferrer"
+          >
             ⬇ Download Image
           </a>
         </div>
