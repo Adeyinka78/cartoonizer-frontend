@@ -51,7 +51,8 @@ function App() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          imageData: base64,   // <-- FULL BASE64 STRING (FIXED)
+          // ✅ SEND RAW BASE64 ONLY
+          imageData: base64.replace(/^data:image\/\w+;base64,/, ""),
           style: "anime",
         }),
       });
