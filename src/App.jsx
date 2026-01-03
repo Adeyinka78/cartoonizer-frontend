@@ -3,6 +3,7 @@ import "./App.css";
 
 function App() {
   const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  console.log("API:", API_BASE_URL);
 
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -31,12 +32,12 @@ function App() {
 
   const sendToServer = async () => {
     if (credits <= 0) {
-      alert("You are out of credits. Please buy more credits.");
+      alert("You have no credits left. Please purchase more.");
       return;
     }
 
     if (!image) {
-      alert("Please upload an image.");
+      alert("Please upload a clear photo of yourself.");
       return;
     }
 
@@ -47,27 +48,24 @@ function App() {
 
       const response = await fetch(`${API_BASE_URL}/cartoonize`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          // ✅ SEND RAW BASE64 ONLY
-          imageData: base64.replace(/^data:image\/\w+;base64,/, ""),
-          style: "anime",
+          imageData: base64,
+          style: "professional-avatar",
         }),
       });
 
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        throw new Error(data.error || "Failed to process image");
+        throw new Error(data.error || "Image processing failed");
       }
 
       setResult(data.url);
       setCredits((c) => c - 1);
     } catch (err) {
-      console.error("Cartoonize error:", err);
-      alert("Failed to process image. Please try again.");
+      console.error("Avatar generation error:", err);
+      alert("Avatar generation failed. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -75,11 +73,13 @@ function App() {
 
   return (
     <div className="container">
-      <h1 className="title">🎨 Cartoonizer AI</h1>
-      <p className="subtitle">Upload your picture → Get a cartoon version</p>
+      <h1 className="title">✨ Premium AI Avatar Generator</h1>
+      <p className="subtitle">
+        Upload one photo. Get studio-quality AI avatars in seconds.
+      </p>
 
       <p className="credits">
-        💳 Credits remaining: <strong>{credits}</strong>
+        🎟 Credits Remaining: <strong>{credits}</strong>
       </p>
 
       <a
@@ -88,7 +88,7 @@ function App() {
         rel="noopener noreferrer"
         className="buy-btn"
       >
-        Buy Cartoon Credits
+        Unlock More Avatars
       </a>
 
       <div className="upload-box">
@@ -97,29 +97,33 @@ function App() {
 
       {preview && (
         <div className="preview-box">
-          <h3>📷 Original Image</h3>
-          <img src={preview} alt="preview" className="image" />
+          <h3>📸 Uploaded Photo</h3>
+          <img src={preview} alt="original" className="image" />
         </div>
       )}
 
       <button className="btn" onClick={sendToServer} disabled={loading}>
-        {loading ? "Processing..." : "✨ Cartoonize Image"}
+        {loading ? "Generating Avatar..." : "Generate Premium Avatar"}
       </button>
 
       {result && (
         <div className="preview-box">
-          <h3>🖼️ Cartoonized Result</h3>
-          <img src={result} alt="result" className="image" />
+          <h3>🖼 Your AI-Generated Avatar</h3>
+          <img src={result} alt="avatar result" className="image" />
           <a
             className="download"
             href={result}
             target="_blank"
             rel="noopener noreferrer"
           >
-            ⬇ Download Image
+            ⬇ Download Avatar
           </a>
         </div>
       )}
+
+      <p className="trust">
+        🔒 Your photos are processed securely and never shared.
+      </p>
     </div>
   );
 }
