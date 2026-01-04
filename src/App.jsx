@@ -8,7 +8,8 @@ function App() {
       import.meta.env.VITE_API_BASE_URL.trim()) ||
     "https://cartoonizer-backend-production-4203.up.railway.app";
 
-  console.log("Using API:", API_BASE_URL);
+  console.log("Frontend loaded ✅");
+  console.log("Using API (fresh):", API_BASE_URL);
 
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
