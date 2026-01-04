@@ -2,9 +2,10 @@ import { useState } from "react";
 import "./App.css";
 
 function App() {
-  // Use Vercel env variable OR fallback to your Railway backend
+  // Guaranteed API URL resolution
   const API_BASE_URL =
-    import.meta.env.VITE_API_BASE_URL ||
+    (import.meta.env.VITE_API_BASE_URL &&
+      import.meta.env.VITE_API_BASE_URL.trim()) ||
     "https://cartoonizer-backend-production-4203.up.railway.app";
 
   console.log("Using API:", API_BASE_URL);
