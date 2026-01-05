@@ -1,6 +1,6 @@
 // src/App.jsx
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-dom";
 import "./App.css";
 
 import ResumeGenerator from "./pages/ResumeGenerator";
@@ -139,9 +139,32 @@ export default function App() {
   return (
     <Router>
       <nav className="nav">
-        <Link to="/" className="nav-link">Avatar Generator</Link>
-        <Link to="/resume" className="nav-link">Resume Generator</Link>
-        <Link to="/linkedin" className="nav-link">LinkedIn Optimizer</Link>
+        <NavLink
+          to="/"
+          className={({ isActive }) =>
+            isActive ? "nav-link active" : "nav-link"
+          }
+        >
+          Avatar Generator
+        </NavLink>
+
+        <NavLink
+          to="/resume"
+          className={({ isActive }) =>
+            isActive ? "nav-link active" : "nav-link"
+          }
+        >
+          Resume Generator
+        </NavLink>
+
+        <NavLink
+          to="/linkedin"
+          className={({ isActive }) =>
+            isActive ? "nav-link active" : "nav-link"
+          }
+        >
+          LinkedIn Optimizer
+        </NavLink>
       </nav>
 
       <Routes>
