@@ -1,15 +1,16 @@
+// src/App.jsx
 import { useState } from "react";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import "./App.css";
 
-function App() {
-  // Guaranteed API URL resolution
+import ResumeGenerator from "./pages/ResumeGenerator";
+import LinkedInOptimizer from "./pages/LinkedInOptimizer";
+
+function AvatarGenerator() {
   const API_BASE_URL =
     (import.meta.env.VITE_API_BASE_URL &&
       import.meta.env.VITE_API_BASE_URL.trim()) ||
     "https://cartoonizer-backend-production-4203.up.railway.app";
-
-  console.log("Frontend loaded ✅");
-  console.log("Using API (fresh):", API_BASE_URL);
 
   const [image, setImage] = useState(null);
   const [preview, setPreview] = useState(null);
@@ -134,4 +135,20 @@ function App() {
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <Router>
+      <nav className="nav">
+        <Link to="/" className="nav-link">Avatar Generator</Link>
+        <Link to="/resume" className="nav-link">Resume Generator</Link>
+        <Link to="/linkedin" className="nav-link">LinkedIn Optimizer</Link>
+      </nav>
+
+      <Routes>
+        <Route path="/" element={<AvatarGenerator />} />
+        <Route path="/resume" element={<ResumeGenerator />} />
+        <Route path="/linkedin" element={<LinkedInOptimizer />} />
+      </Routes>
+    </Router>
+  );
+}
