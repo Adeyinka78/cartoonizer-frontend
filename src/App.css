@@ -1,86 +1,151 @@
+/* ----------------------------- */
+/* GLOBAL STYLES                 */
+/* ----------------------------- */
+
 body {
-  background: #f5f5f5;
-  font-family: "Segoe UI", sans-serif;
   margin: 0;
-  padding: 0;
+  font-family: Arial, Helvetica, sans-serif;
+  background: #f8f9fa;
 }
 
+/* ----------------------------- */
+/* CONTAINER + LAYOUT            */
+/* ----------------------------- */
+
 .container {
-  max-width: 700px;
+  max-width: 600px;
   margin: 40px auto;
+  padding: 20px;
   background: white;
-  padding: 30px;
-  border-radius: 16px;
+  border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
   text-align: center;
 }
 
+/* ----------------------------- */
+/* TITLES + TEXT                 */
+/* ----------------------------- */
+
 .title {
   font-size: 32px;
   font-weight: bold;
-  margin-bottom: 8px;
-  color: #333;
+  margin-bottom: 10px;
 }
 
 .subtitle {
   font-size: 16px;
-  margin-bottom: 20px;
   color: #555;
+  margin-bottom: 20px;
 }
 
-.upload-box input {
-  padding: 10px;
+.credits {
+  font-size: 18px;
+  margin-bottom: 10px;
+}
+
+.trust {
+  margin-top: 20px;
+  font-size: 14px;
+  color: #777;
+}
+
+/* ----------------------------- */
+/* BUTTONS                       */
+/* ----------------------------- */
+
+.btn {
+  background: #2563eb;
+  color: white;
+  padding: 12px 20px;
+  border: none;
   border-radius: 8px;
-  border: 1px solid #aaa;
+  cursor: pointer;
+  font-size: 16px;
+  margin-top: 20px;
+  transition: 0.2s ease;
+}
+
+.btn:hover {
+  background: #1d4ed8;
+}
+
+.buy-btn {
+  display: inline-block;
+  background: #10b981;
+  color: white;
+  padding: 10px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  margin-bottom: 20px;
+  transition: 0.2s ease;
+}
+
+.buy-btn:hover {
+  background: #059669;
+}
+
+.download {
+  display: inline-block;
+  margin-top: 10px;
+  color: #2563eb;
+  font-weight: bold;
+  text-decoration: none;
+}
+
+.download:hover {
+  text-decoration: underline;
+}
+
+/* ----------------------------- */
+/* IMAGE + PREVIEW BOXES         */
+/* ----------------------------- */
+
+.upload-box {
+  margin: 20px 0;
 }
 
 .preview-box {
   margin-top: 20px;
+  padding: 15px;
+  background: #f3f4f6;
+  border-radius: 10px;
 }
 
 .image {
   width: 100%;
-  max-height: 320px;
-  object-fit: cover;
-  border-radius: 12px;
+  border-radius: 10px;
   margin-top: 10px;
 }
 
-.btn {
-  background: #6a5acd;
-  color: white;
-  padding: 14px 20px;
-  border: none;
-  border-radius: 10px;
-  cursor: pointer;
-  margin-top: 15px;
+/* ----------------------------- */
+/* NAVIGATION BAR (NEW)          */
+/* ----------------------------- */
+
+.nav {
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+  padding: 15px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+  margin-bottom: 30px;
+}
+
+.nav-link {
   font-size: 16px;
-}
-
-.btn:hover {
-  background: #5949c2;
-}
-
-.loader {
-  margin: 20px auto;
-  width: 40px;
-  height: 40px;
-  border: 4px solid #ddd;
-  border-top-color: #6a5acd;
-  border-radius: 50%;
-  animation: spin 0.8s linear infinite;
-}
-
-@keyframes spin {
-  to {
-    transform: rotate(360deg);
-  }
-}
-
-.download {
-  display: block;
-  margin-top: 15px;
-  color: #6a5acd;
-  font-weight: bold;
+  font-weight: 600;
+  color: #333;
   text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 6px;
+  transition: 0.2s ease;
+}
+
+.nav-link:hover {
+  background: #f3f3f3;
+}
+
+.nav-link.active {
+  background: #2563eb;
+  color: white;
 }
