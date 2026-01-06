@@ -1,10 +1,11 @@
 // src/App.jsx
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route, NavLink } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import "./App.css";
 
 import ResumeGenerator from "./pages/ResumeGenerator";
 import LinkedInOptimizer from "./pages/LinkedInOptimizer";
+import MainLayout from "./layouts/MainLayout";
 
 function AvatarGenerator() {
   const API_BASE_URL =
@@ -138,40 +139,13 @@ function AvatarGenerator() {
 export default function App() {
   return (
     <Router>
-      <nav className="nav">
-        <NavLink
-          to="/"
-          className={({ isActive }) =>
-            isActive ? "nav-link active" : "nav-link"
-          }
-        >
-          Avatar Generator
-        </NavLink>
-
-        <NavLink
-          to="/resume"
-          className={({ isActive }) =>
-            isActive ? "nav-link active" : "nav-link"
-          }
-        >
-          Resume Generator
-        </NavLink>
-
-        <NavLink
-          to="/linkedin"
-          className={({ isActive }) =>
-            isActive ? "nav-link active" : "nav-link"
-          }
-        >
-          LinkedIn Optimizer
-        </NavLink>
-      </nav>
-
-      <Routes>
-        <Route path="/" element={<AvatarGenerator />} />
-        <Route path="/resume" element={<ResumeGenerator />} />
-        <Route path="/linkedin" element={<LinkedInOptimizer />} />
-      </Routes>
+      <MainLayout>
+        <Routes>
+          <Route path="/" element={<AvatarGenerator />} />
+          <Route path="/resume" element={<ResumeGenerator />} />
+          <Route path="/linkedin" element={<LinkedInOptimizer />} />
+        </Routes>
+      </MainLayout>
     </Router>
   );
 }
