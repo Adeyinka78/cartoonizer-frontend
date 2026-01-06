@@ -5,7 +5,7 @@ import "./App.css";
 
 import ResumeGenerator from "./pages/ResumeGenerator";
 import LinkedInOptimizer from "./pages/LinkedInOptimizer";
-import MainLayout from "./layouts/MainLayout";
+import MainLayout from "./MainLayout";
 
 function AvatarGenerator() {
   const API_BASE_URL =
