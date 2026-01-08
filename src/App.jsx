@@ -1,151 +1,121 @@
-// src/App.jsx
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
-import "./App.css";
 
-import ResumeGenerator from "./pages/ResumeGenerator";
-import LinkedInOptimizer from "./pages/LinkedInOptimizer";
-import MainLayout from "./MainLayout";
-
-function AvatarGenerator() {
-  const API_BASE_URL =
-    (import.meta.env.VITE_API_BASE_URL &&
-      import.meta.env.VITE_API_BASE_URL.trim()) ||
-    "https://cartoonizer-backend-production-4203.up.railway.app";
-
-  const [image, setImage] = useState(null);
-  const [preview, setPreview] = useState(null);
+export default function Cartoonizer() {
+  const [selectedImage, setSelectedImage] = useState(null);
+  const [cartoonImage, setCartoonImage] = useState(null);
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState(null);
-  const [credits, setCredits] = useState(1);
-
-  const handleImageUpload = (e) => {
-    const file = e.target.files[0];
-    if (!file) return;
-
-    setImage(file);
-
-    const reader = new FileReader();
-    reader.onloadend = () => setPreview(reader.result);
-    reader.readAsDataURL(file);
-  };
+  const [error, setError] = useState("");
 
   const toBase64 = (file) =>
     new Promise((resolve, reject) => {
       const reader = new FileReader();
-      reader.onload = () => resolve(reader.result);
-      reader.onerror = reject;
+      reader.onload = () => {
+        const result = reader.result;
+        if (typeof result === "string" && result.startsWith("data:image")) {
+          console.log("✅ BASE64 SENT:", result.substring(0, 50));
+          resolve(result);
+        } else {
+          reject("Invalid base64 format");
+        }
+      };
+      reader.onerror = (err) => reject(err);
       reader.readAsDataURL(file);
     });
 
-  const sendToServer = async () => {
-    if (credits <= 0) {
-      alert("You have no credits left. Please purchase more.");
-      return;
-    }
+  const handleUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
 
-    if (!image) {
-      alert("Please upload a clear photo of yourself.");
-      return;
-    }
-
-    setLoading(true);
+    setSelectedImage(URL.createObjectURL(file));
+    setCartoonImage(null);
+    setError("");
 
     try {
-      const base64 = await toBase64(image);
-
-      const response = await fetch(`${API_BASE_URL}/cartoonize`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          imageData: base64,
-          style: "professional-avatar",
-        }),
-      });
-
-      const data = await response.json();
-
-      if (!response.ok || !data.success) {
-        throw new Error(data.error || "Image processing failed");
-      }
-
-      setResult(data.url);
-      setCredits((c) => c - 1);
+      const base64 = await toBase64(file);
+      await generateCartoon(base64);
     } catch (err) {
-      console.error("Avatar generation error:", err);
-      alert("Avatar generation failed. Please try again.");
-    } finally {
-      setLoading(false);
+      console.error("❌ Base64 conversion failed:", err);
+      setError("Failed to process image");
     }
   };
 
+  const generateCartoon = async (base64) => {
+    setLoading(true);
+    setError("");
+
+    try {
+      const response = await fetch(
+        "https://cartoonizer-backend-production-4203.up.railway.app/cartoonize",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ image: base64 }),
+        }
+      );
+
+      const data = await response.json();
+      console.log("✅ SERVER RESPONSE:", data);
+
+      if (data.cartoonImage) {
+        setCartoonImage(data.cartoonImage);
+      } else if (data.cartoonImageBase64) {
+        setCartoonImage(data.cartoonImageBase64);
+      } else {
+        throw new Error("Invalid cartoon response");
+      }
+    } catch (err) {
+      console.error("❌ Avatar generation error:", err);
+      setError("Avatar generation failed. Please try again.");
+    }
+
+    setLoading(false);
+  };
+
   return (
-    <div className="container">
-      <h1 className="title">✨ Premium AI Avatar Generator</h1>
-      <p className="subtitle">
-        Upload one photo. Get studio-quality AI avatars in seconds.
-      </p>
+    <div style={{ maxWidth: 500, margin: "0 auto", textAlign: "center" }}>
+      <h2>AI Cartoonizer</h2>
 
-      <p className="credits">
-        🎟 Credits Remaining: <strong>{credits}</strong>
-      </p>
+      <input type="file" accept="image/*" onChange={handleUpload} />
 
-      <a
-        href="https://buy.stripe.com/14A6oH1BVbih3Jy40F4wM00"
-        target="_blank"
-        rel="noopener noreferrer"
-        className="buy-btn"
-      >
-        Unlock More Avatars
-      </a>
+      {loading && <p>Generating Avatar...</p>}
+      {error && <p style={{ color: "red" }}>{error}</p>}
 
-      <div className="upload-box">
-        <input type="file" accept="image/*" onChange={handleImageUpload} />
-      </div>
-
-      {preview && (
-        <div className="preview-box">
-          <h3>📸 Uploaded Photo</h3>
-          <img src={preview} alt="original" className="image" />
-        </div>
+      {selectedImage && (
+        <>
+          <h4>Original</h4>
+          <img
+            src={selectedImage}
+            alt="original"
+            style={{ width: "100%", borderRadius: 8 }}
+          />
+        </>
       )}
 
-      <button className="btn" onClick={sendToServer} disabled={loading}>
-        {loading ? "Generating Avatar..." : "Generate Premium Avatar"}
-      </button>
-
-      {result && (
-        <div className="preview-box">
-          <h3>🖼 Your AI-Generated Avatar</h3>
-          <img src={result} alt="avatar result" className="image" />
+      {cartoonImage && (
+        <>
+          <h4>Cartoon</h4>
+          <img
+            src={cartoonImage}
+            alt="cartoon"
+            style={{ width: "100%", borderRadius: 8 }}
+          />
           <a
-            className="download"
-            href={result}
-            target="_blank"
-            rel="noopener noreferrer"
+            href={cartoonImage}
+            download="cartoon.png"
+            style={{
+              display: "inline-block",
+              marginTop: 12,
+              padding: "10px 20px",
+              background: "#000",
+              color: "#fff",
+              borderRadius: 6,
+              textDecoration: "none",
+            }}
           >
-            ⬇ Download Avatar
+            Download Avatar
           </a>
-        </div>
+        </>
       )}
-
-      <p className="trust">
-        🔒 Your photos are processed securely and never shared.
-      </p>
     </div>
-  );
-}
-
-export default function App() {
-  return (
-    <Router>
-      <MainLayout>
-        <Routes>
-          <Route path="/" element={<AvatarGenerator />} />
-          <Route path="/resume" element={<ResumeGenerator />} />
-          <Route path="/linkedin" element={<LinkedInOptimizer />} />
-        </Routes>
-      </MainLayout>
-    </Router>
   );
 }
